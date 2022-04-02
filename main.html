@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+
+    <link rel="stylesheet" type="text/css" href="./style/style.css">
+
+    <title>Scorpio</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script type="module" src="./main.js"></script>
+
+    <!--Load React-->
+    <script src="./react/react.development.js"></script>  
+    <script src="./react/react-dom.development.js"></script>
+  </body>
+</html>
