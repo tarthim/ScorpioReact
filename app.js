@@ -117,9 +117,7 @@ const bindIPC = (win) => {
         let lastIndex = url.lastIndexOf('\\') // Needed for base path
         let basePath = url.slice(0, lastIndex) + '\\'
 
-        // Then manage local state
-
-        
+        // Then manage local state        
         let lastPlayed = player.Playing // If something is playing, make sure we can set it as history
         // Build a new player
         player = new Player()
@@ -129,7 +127,7 @@ const bindIPC = (win) => {
 
         console.log(player)
 
-        // Actions to do when basepath is different:
+        // Actions to do when basepath is different, aka, playing from different directory/album:
         if (player.LastPlayed.Basedir !== player.Playing.Basedir) {
             console.log('Playing a song from a different directory')
             let coverArtUrl = await _findAlbumArt(player.Playing.Basedir)

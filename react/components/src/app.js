@@ -172,6 +172,7 @@ class Scorpio extends React.Component {
         this.state.audio.play()
         // Let main thread know we started playing a song
         window.electronAPI.handlePlaySong(url)
+        console.log(this.state.audio)
     }
 
     _playSongFromFileTree = (url) => {
@@ -256,7 +257,6 @@ class Scorpio extends React.Component {
         })
     }
 
-
     render() {
         return (
             <div onClickCapture={(e) => this._handleLeftClickGlobal(e)} id="scorpio">
@@ -272,7 +272,7 @@ class Scorpio extends React.Component {
                 <div className="content-boxes">
                     <div className="top-pane">
                         <TitleBar nowPlaying={this.state.nowPlayingInfo}/>
-                        <TopBar togglePlaying={this.state.togglePlaying} activePlaylist={this.state.activePlaylist}/>
+                        <TopBar audio={this.state.audio} togglePlaying={this.state.togglePlaying} seekCurrentPlaying={this._setCurrentPlayingToTime} activePlaylist={this.state.activePlaylist}/>
                     </div>
 
                     <div className="main-pane">

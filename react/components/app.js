@@ -84,6 +84,7 @@ class Scorpio extends React.Component {
       this.state.audio.play(); // Let main thread know we started playing a song
 
       window.electronAPI.handlePlaySong(url);
+      console.log(this.state.audio);
     });
 
     _defineProperty(this, "_playSongFromFileTree", url => {
@@ -271,7 +272,9 @@ class Scorpio extends React.Component {
     }, /*#__PURE__*/React.createElement(TitleBar, {
       nowPlaying: this.state.nowPlayingInfo
     }), /*#__PURE__*/React.createElement(TopBar, {
+      audio: this.state.audio,
       togglePlaying: this.state.togglePlaying,
+      seekCurrentPlaying: this._setCurrentPlayingToTime,
       activePlaylist: this.state.activePlaylist
     })), /*#__PURE__*/React.createElement("div", {
       className: "main-pane"
