@@ -50,7 +50,7 @@ class TopBar extends React.PureComponent {
             value: seekbarTime
         })
 
-        setTimeout(this._forceSeekbarRefresh, 6000)
+        setTimeout(this._forceSeekbarRefresh, 800)
     }
 
     _onSeekbarChange = (e) => {
@@ -64,7 +64,7 @@ class TopBar extends React.PureComponent {
         return (
             <div className="topbar">
                 <div className="topbar-left">
-                    <div id="top-pause" className="title-button" onClick={() => this.props.togglePlaying()}>P</div>
+                    <div id="top-pause" className="title-button" onClick={() => this.props.togglePlaying()}><div id="start-stop-button"></div></div>
                     <input type="range" min="1" max="100" value={this.state.value} onChange={this._onSeekbarChange} onClick={this._onSeekbarClick} id="seekbar"></input>
                 </div>
             </div>

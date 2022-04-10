@@ -31,7 +31,7 @@ class PlayerManager extends React.Component {
         if (this.props.activePlaylist == null) return <div></div>
         return (
             <div className="main-playlist">
-                <div className="top-area">
+                <div className="main-playlist-overlay">
                    <div className="main-playlist-banner">{this.props.activePlaylist.name}</div>
                 </div>
                 

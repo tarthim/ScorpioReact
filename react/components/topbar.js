@@ -31,7 +31,7 @@ class TopBar extends React.PureComponent {
       this.setState({
         value: seekbarTime
       });
-      setTimeout(this._forceSeekbarRefresh, 6000);
+      setTimeout(this._forceSeekbarRefresh, 800);
     });
 
     _defineProperty(this, "_onSeekbarChange", e => {
@@ -67,7 +67,9 @@ class TopBar extends React.PureComponent {
       id: "top-pause",
       className: "title-button",
       onClick: () => this.props.togglePlaying()
-    }, "P"), /*#__PURE__*/React.createElement("input", {
+    }, /*#__PURE__*/React.createElement("div", {
+      id: "start-stop-button"
+    })), /*#__PURE__*/React.createElement("input", {
       type: "range",
       min: "1",
       max: "100",

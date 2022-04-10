@@ -41,6 +41,7 @@ html, body {
 .topbar-left {
     display: flex;
     flex-direction: row;
+    height: 100%;
 }
 
 .titlebar {
@@ -71,14 +72,27 @@ html, body {
 }
 
 .title-button {
-    width: 32px;
+    height: 100%;
+    width: 35px;
+    margin: 0px 10px;
     display: flex;
     justify-content: center;
     align-items: center;
+    color: white;
+
+    margin: 0px 10px;
 }
 
-.title-button:hover {
-    background: red;
+#start-stop-button {
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    background: var(--highlight);
+    border: 1px solid white;
+    position: relative;
+}
+
+#start-stop-button:hover {
+    background: var(--general);
 }
 
 #song-info {
@@ -166,11 +180,69 @@ html, body {
     display: flex;
     align-items: center;
     color: white;
+    padding: 2px 0px;
 }
 
+
+
 #seekbar {
-    accent-color: var(--general);
+    accent-color: var(--highlight);
+    margin: 0px 10px;
 }
+
+input[type=range] {
+    width: 100%;
+    margin: 9px 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+  }
+  input[type=range]:focus {
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    background: var(--general);
+    border: 1px solid white;
+    width: 100%;
+    height: 7px;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    margin-top: -5px;
+    width: 14px;
+    height: 14px;
+    background: var(--highlight);
+    border-radius: 5px;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+  input[type=range]::-ms-track {
+    border-color: transparent;
+    border-width: 9px 0;
+    color: orange;
+    width: 100%;
+    height: 7px;
+    cursor: pointer;
+  }
+  input[type=range]::-ms-fill-lower {
+    background: var(--highlight);
+    border: 1px solid var(--highlight);
+  }
+  input[type=range]::-ms-fill-upper {
+    background: var(--highlight);
+    border: 1px solid var(--highlight);
+  }
+  input[type=range]::-ms-thumb {
+    width: 27px;
+    height: 25px;
+    background: var(--highlight);
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 0px;
+    /*Needed to keep the Edge thumb centred*/
+  }
+  
 
 .node-title {
     padding: 1px 2px 1px 2px;
@@ -257,7 +329,7 @@ html, body {
     color: white;
 }
 
-.top-area {
+.main-playlist-overlay {
     display: flex;
     justify-content: end;
     padding: 0px 0px 10px 0px;
@@ -271,6 +343,7 @@ html, body {
     background: var(--highlight);
     margin-right: 15px;
     max-width: 80px;
+    white-space: nowrap;
 }
 
 .playlist-item {

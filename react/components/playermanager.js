@@ -43,7 +43,7 @@ class PlayerManager extends React.Component {
     return /*#__PURE__*/React.createElement("div", {
       className: "main-playlist"
     }, /*#__PURE__*/React.createElement("div", {
-      className: "top-area"
+      className: "main-playlist-overlay"
     }, /*#__PURE__*/React.createElement("div", {
       className: "main-playlist-banner"
     }, this.props.activePlaylist.name)), /*#__PURE__*/React.createElement("div", {

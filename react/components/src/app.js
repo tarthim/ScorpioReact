@@ -276,7 +276,6 @@ class Scorpio extends React.Component {
                     </div>
 
                     <div className="main-pane">
-
                         <div className="left-pane">
                             <FileBrowser songTree={this.state.songTree} playSong={this._playSongFromFileTree} showContext={this._activateContextMenu}/>
                         </div>
