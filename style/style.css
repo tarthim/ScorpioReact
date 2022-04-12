@@ -74,13 +74,12 @@ html, body {
 .title-button {
     height: 100%;
     width: 35px;
-    margin: 0px 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
 
-    margin: 0px 10px;
+    margin: 0px 6px;
 }
 
 #start-stop-button {
@@ -342,8 +341,8 @@ input[type=range] {
     color: white;
     background: var(--highlight);
     margin-right: 15px;
-    max-width: 80px;
     white-space: nowrap;
+    min-width: 80px;
 }
 
 .playlist-item {
