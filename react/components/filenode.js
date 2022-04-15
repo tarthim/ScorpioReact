@@ -15,6 +15,14 @@ class FileNode extends React.PureComponent {
       this.props.rightClick(e, "SONG", this.props.content);
     });
 
+    _defineProperty(this, "_onDragStart", e => {
+      // Only drag/drop the lowest div, aka, the actual event
+      if (e.target === e.currentTarget) {
+        e.dataTransfer.setData("text/isFolder", this.props.content.isFolder);
+        e.dataTransfer.setData("text/path", this.props.content.path);
+      }
+    });
+
     this.state = {
       expandFolder: this.props.startExpanded
     };
@@ -50,6 +58,8 @@ class FileNode extends React.PureComponent {
 
     return /*#__PURE__*/React.createElement("div", {
       className: className,
+      draggable: "true",
+      onDragStart: this._onDragStart,
       key: cont.path
     }, /*#__PURE__*/React.createElement("div", {
       className: "node-title",

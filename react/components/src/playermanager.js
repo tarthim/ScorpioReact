@@ -26,11 +26,22 @@ class PlayerManager extends React.Component {
         return content
     }
 
+    _onDragOver = (e) => {
+        e.preventDefault()
+    }
+
+    _onDrop = (e) => {
+        // Event when FileNode gets dropped on a playlist
+        console.log(e.dataTransfer.getData("text/isFolder"))
+        console.log(e.dataTransfer.getData("text/path"))
+        console.log(this.props.activePlaylist)
+    }
+
     render() {
         let content = this._renderContent()
         if (this.props.activePlaylist == null) return <div></div>
         return (
-            <div className="main-playlist">
+            <div className="main-playlist" onDragOver={this._onDragOver} onDrop={this._onDrop}>
                 <div className="main-playlist-overlay">
                    <div className="main-playlist-banner">{this.props.activePlaylist.name}</div>
                 </div>

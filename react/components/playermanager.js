@@ -34,6 +34,17 @@ class PlayerManager extends React.Component {
       this.props.setActivePlaylistContent(playlistContent);
       return content;
     });
+
+    _defineProperty(this, "_onDragOver", e => {
+      e.preventDefault();
+    });
+
+    _defineProperty(this, "_onDrop", e => {
+      // Event when FileNode gets dropped on a playlist
+      console.log(e.dataTransfer.getData("text/isFolder"));
+      console.log(e.dataTransfer.getData("text/path"));
+      console.log(this.props.activePlaylist);
+    });
   }
 
   render() {
@@ -41,7 +52,9 @@ class PlayerManager extends React.Component {
 
     if (this.props.activePlaylist == null) return /*#__PURE__*/React.createElement("div", null);
     return /*#__PURE__*/React.createElement("div", {
-      className: "main-playlist"
+      className: "main-playlist",
+      onDragOver: this._onDragOver,
+      onDrop: this._onDrop
     }, /*#__PURE__*/React.createElement("div", {
       className: "main-playlist-overlay"
     }, /*#__PURE__*/React.createElement("div", {

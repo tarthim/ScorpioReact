@@ -27,6 +27,7 @@ class ContextMenu extends React.Component {
         return (
             <>
                 <div className="context-item" onClickCapture={() => this.props.setEditPlaylist(this.props.renderSettings.Content)}>Edit playlist</div>
+                <div className="context-item" onClickCapture={() => this.props.removePlaylist(this.props.renderSettings.Content)}>Remove playlist</div>
             </>
         )
     }

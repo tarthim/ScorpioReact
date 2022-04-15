@@ -212,6 +212,15 @@ class Scorpio extends React.Component {
         })
     }
 
+    _removePlaylist = async (plID) => {
+        let playlistUpdate = await window.electronAPI.handleDeletePlaylist(plID)
+
+        this.setState({
+            playlists: playlistUpdate
+        })
+    }
+
+
     _togglePlaying = () => {
         // Handler for toggling playing
         this.state.audio.paused ? this.state.audio.play() : this.state.audio.pause()
@@ -264,6 +273,7 @@ class Scorpio extends React.Component {
                 <ContextMenu 
                 playSong={this._playSongFromFileTree}
                 addNewPlaylist={this._addNewPlaylist}
+                removePlaylist={this._removePlaylist}
                 renderSettings={this.state.contextMenuState}
                 addSongToPlaylist={this._addSongToPlaylist}
                 setEditPlaylist={this._setEditPlaylist}
@@ -271,7 +281,7 @@ class Scorpio extends React.Component {
                 
                 <div className="content-boxes">
                     <div className="top-pane">
-                        <TitleBar nowPlaying={this.state.nowPlayingInfo}/>
+                        <TitleBar nowPlaying={this.state.nowPlayingInfo} albumArt={this.state.albumArt}/>
                         <TopBar audio={this.state.audio} togglePlaying={this.state.togglePlaying} seekCurrentPlaying={this._setCurrentPlayingToTime} activePlaylist={this.state.activePlaylist}/>
                     </div>
 

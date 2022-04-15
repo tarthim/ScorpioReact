@@ -25,7 +25,10 @@ class ContextMenu extends React.Component {
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         className: "context-item",
         onClickCapture: () => this.props.setEditPlaylist(this.props.renderSettings.Content)
-      }, "Edit playlist"));
+      }, "Edit playlist"), /*#__PURE__*/React.createElement("div", {
+        className: "context-item",
+        onClickCapture: () => this.props.removePlaylist(this.props.renderSettings.Content)
+      }, "Remove playlist"));
     });
   } // Shows when right clicking a song
 

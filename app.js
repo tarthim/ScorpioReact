@@ -87,6 +87,7 @@ const bindIPC = (win) => {
         return metadataTransformer.transformMetadata(metadata)
     })
 
+    // Receives a full playlist from client, updates
     ipcMain.handle('handle:playlistUpdate', async (e, playlist) => {
         let playlistID = playlist.id
         let allPlaylists = nconf.get('app:playlists')
@@ -176,6 +177,17 @@ const bindIPC = (win) => {
         // Generate new playlist and return to client
         console.log('Creating new playlist')
         return createEmptyPlaylist('New playlist')
+    })
+
+    ipcMain.handle('handle:deletePlaylist', (e, playlistID) => {
+        // Delete playlist
+        console.log('Deleting playlist')
+        let allPlaylists = nconf.get('app:playlists')
+        let deleteItemIndex = allPlaylists.indexOf(allPlaylists.find(e => e.id == playlistID))
+        allPlaylists.splice(deleteItemIndex, 1)
+        nconf.stores.app.set('app:playlists', allPlaylists)
+        saveConfig()
+        return allPlaylists
     })
 }
 

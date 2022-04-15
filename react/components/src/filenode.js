@@ -17,6 +17,14 @@ class FileNode extends React.PureComponent {
         this.props.rightClick(e, "SONG", this.props.content)
     }
 
+    _onDragStart = (e) => {
+        // Only drag/drop the lowest div, aka, the actual event
+        if (e.target === e.currentTarget) {
+            e.dataTransfer.setData("text/isFolder", this.props.content.isFolder)
+            e.dataTransfer.setData("text/path", this.props.content.path)
+        }
+    }
+
     render() {
         let cont = this.props.content
         let children = this.props.children
@@ -47,7 +55,7 @@ class FileNode extends React.PureComponent {
 
         return (
             <div 
-            className={className} 
+            className={className} draggable="true" onDragStart={this._onDragStart}
             
             key={cont.path}>
                 <div className="node-title" onContextMenu={onContext} onClick={onClick}>{cont.name}</div>

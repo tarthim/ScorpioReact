@@ -1,5 +1,6 @@
 class TitleBar extends React.PureComponent {
   render() {
+    console.log(this.props.albumArt);
     let titleLine = "";
 
     if (this.props.nowPlaying != null) {
@@ -23,7 +24,10 @@ class TitleBar extends React.PureComponent {
     }, "O"), /*#__PURE__*/React.createElement("div", {
       id: "close-button",
       className: "title-button"
-    }, "X")));
+    }, "X")), this.props.albumArt && /*#__PURE__*/React.createElement("img", {
+      id: "titlebar-style",
+      src: this.props.albumArt
+    }));
   }
 
 }

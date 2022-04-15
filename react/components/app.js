@@ -125,6 +125,13 @@ class Scorpio extends React.Component {
       });
     });
 
+    _defineProperty(this, "_removePlaylist", async plID => {
+      let playlistUpdate = await window.electronAPI.handleDeletePlaylist(plID);
+      this.setState({
+        playlists: playlistUpdate
+      });
+    });
+
     _defineProperty(this, "_togglePlaying", () => {
       // Handler for toggling playing
       this.state.audio.paused ? this.state.audio.play() : this.state.audio.pause();
@@ -262,6 +269,7 @@ class Scorpio extends React.Component {
     }, this.state.showContextMenu ? /*#__PURE__*/React.createElement(ContextMenu, {
       playSong: this._playSongFromFileTree,
       addNewPlaylist: this._addNewPlaylist,
+      removePlaylist: this._removePlaylist,
       renderSettings: this.state.contextMenuState,
       addSongToPlaylist: this._addSongToPlaylist,
       setEditPlaylist: this._setEditPlaylist
@@ -270,7 +278,8 @@ class Scorpio extends React.Component {
     }, /*#__PURE__*/React.createElement("div", {
       className: "top-pane"
     }, /*#__PURE__*/React.createElement(TitleBar, {
-      nowPlaying: this.state.nowPlayingInfo
+      nowPlaying: this.state.nowPlayingInfo,
+      albumArt: this.state.albumArt
     }), /*#__PURE__*/React.createElement(TopBar, {
       audio: this.state.audio,
       togglePlaying: this.state.togglePlaying,
