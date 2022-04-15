@@ -3,6 +3,7 @@ class Playlist {
         this.id = id
         this.name = name
         this.content = content
+        this.lastSongID = 0
     }
 }
 

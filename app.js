@@ -15,7 +15,7 @@ const localColorFile = 'colors.json'
 
 let player = null
 
-async function readDirectoryTree(dir) {
+async function readDirectoryTree(dir, onlyOnce) {
     console.log('Reading directory ' + dir)
     // First check if there is a tree to pass back in our cache
 
@@ -25,15 +25,17 @@ async function readDirectoryTree(dir) {
 
     let tree = nconf.stores.filetree.get(dir)
     
-    if (tree && !forceRefresh) {
+    if (tree && !forceRefresh && !onlyOnce) {
         console.log('Returning cached file tree')
         return tree
     }
     else {
         // Await fs information here, pass back to preload.js handler
         let fileTree = await readFilesystem(dir)
-        nconf.stores.filetree.set(dir, fileTree)
-        saveConfig()
+        if (!onlyOnce) {
+            nconf.stores.filetree.set(dir, fileTree)
+            saveConfig()
+        }
 
         return fileTree
     }
@@ -79,7 +81,7 @@ const bindIPC = (win) => {
     })
 
     ipcMain.handle('handle:scanDirectory', async (e, p) => {
-        return await readDirectoryTree(p)
+        return await readDirectoryTree(p, false)
     })
 
     ipcMain.handle('handle:getMetadata', async (e, url) => {
@@ -189,6 +191,63 @@ const bindIPC = (win) => {
         saveConfig()
         return allPlaylists
     })
+
+    // The ONLY way to add songs to playlists. Works for both context menu and drag and drop actions.
+    // Takes both a path to a file or a path to a folder. Needs a playlistID.
+    ipcMain.handle('handle:addPathToPlaylist', async (e, playlistID, url) => { 
+        // Add path to playlist
+        let allPlaylists = nconf.get('app:playlists')
+        let playlist = allPlaylists.find(e => e.id == playlistID)
+        let nextSongID = playlist.lastSongID + 1
+
+
+
+        // Check whether path is a folder or a file
+        if (fs.lstatSync(url).isDirectory()) {
+            // We will need to find EVERY file inside this directory
+            let baseNode = await readDirectoryTree(url, true)
+            let allFiles = generateFileListFromFileNodes(baseNode[0], [])
+            // Filter out .flac/.mp3/.m4a files
+            let filteredFiles = allFiles.filter(e => e.endsWith('.flac') || e.endsWith('.mp3') || e.endsWith('.m4a'))
+            // Generate file array from filtered files
+            let fileArray = []
+
+            for (const url of filteredFiles) {
+                let rawMetadata = await mm.parseFile(url)
+                let metadata = metadataTransformer.transformMetadata(rawMetadata)
+                fileArray.push({url, metadata, id: nextSongID})
+                nextSongID++
+            }
+            
+            playlist.content.push(...fileArray)
+        }
+        else {
+            // If its a file we can just add it to the playlist
+            let rawMetadata = await mm.parseFile(url)
+            let metadata = metadataTransformer.transformMetadata(rawMetadata)
+            playlist.content.push({url, metadata, id: nextSongID})
+
+            // Manage song IDs
+            playlist.lastSongID = nextSongID
+        }
+
+        // Update change in storage and back to renderer
+        nconf.stores.app.set('app:playlists', allPlaylists)
+        saveConfig()
+        return allPlaylists
+    })
+}
+
+const generateFileListFromFileNodes = (node, allFiles) => {
+    if (node.isFolder) {
+        node.content.forEach((child) => {
+            generateFileListFromFileNodes(child, allFiles)
+        })
+    }
+    else {
+        allFiles.push(node.path)
+    }
+    return allFiles
 }
 
 const directoryCrawl = async (dir) => {

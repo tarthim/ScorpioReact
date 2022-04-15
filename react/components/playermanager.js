@@ -9,12 +9,12 @@ class PlayerManager extends React.Component {
     _defineProperty(this, "_renderContent", () => {
       let content = [];
       let playlistContent = [];
-      let key = 0;
 
       if (this.props.activePlaylist != null) {
         for (const song in this.props.activePlaylist.content) {
-          let uniqueKey = this.props.activePlaylist.id + "-" + key;
           let songContent = this.props.activePlaylist.content[song];
+          let uniqueKey = this.props.activePlaylist.id + '-' + songContent.id;
+          console.log(songContent);
           playlistContent.push({
             uniqueKey,
             songContent
@@ -27,7 +27,6 @@ class PlayerManager extends React.Component {
             active: this.props.activePlaylistSong,
             content: songContent
           }));
-          key++;
         }
       }
 
@@ -39,11 +38,13 @@ class PlayerManager extends React.Component {
       e.preventDefault();
     });
 
-    _defineProperty(this, "_onDrop", e => {
+    _defineProperty(this, "_onDrop", async e => {
       // Event when FileNode gets dropped on a playlist
-      console.log(e.dataTransfer.getData("text/isFolder"));
-      console.log(e.dataTransfer.getData("text/path"));
-      console.log(this.props.activePlaylist);
+      let path = e.dataTransfer.getData("text/path");
+      let playlist = this.props.activePlaylist; // Gets back all playlists, including the updated one
+
+      let updatedPlaylists = await window.electronAPI.handleAddPathToPlaylist(playlist.id, path);
+      this.props.setPlaylists(updatedPlaylists, playlist.id);
     });
   }
 

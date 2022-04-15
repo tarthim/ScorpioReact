@@ -41,6 +41,15 @@ class Scorpio extends React.Component {
       });
     });
 
+    _defineProperty(this, "_setPlaylists", (allPlaylists, activePlaylistID) => {
+      // Get new active playlist
+      let activePlaylist = allPlaylists.find(x => x.id === activePlaylistID);
+      this.setState({
+        playlists: allPlaylists,
+        activePlaylist: activePlaylist
+      });
+    });
+
     _defineProperty(this, "_requestMetadata", async url => {
       let result = await window.electronAPI.handleGetMetadata(url);
       return result;
@@ -49,20 +58,10 @@ class Scorpio extends React.Component {
     _defineProperty(this, "_addSongToPlaylist", async url => {
       // Only works when we have a playlist active
       if (this.state.activePlaylist != null) {
-        // first request information we need to add to front-end, update state, etc
-        let activePlaylist = this.state.activePlaylist; // console.log(activePlaylist)
-        // Get metadata for song
+        let activePlaylistID = this.state.activePlaylist.id;
+        let updatedPlaylists = await window.electronAPI.handleAddPathToPlaylist(this.state.activePlaylist.id, url);
 
-        let metadata = await this._requestMetadata(url);
-        activePlaylist.content.push({
-          url,
-          metadata
-        });
-        this.setState({
-          activePlaylist: activePlaylist
-        }); // When front-end is done, send FULL new playlist to be saved by the back-end!
-
-        await window.electronAPI.handlePlaylistUpdate(activePlaylist);
+        this._setPlaylists(updatedPlaylists, activePlaylistID);
       }
     });
 
@@ -296,6 +295,7 @@ class Scorpio extends React.Component {
     })), /*#__PURE__*/React.createElement("div", {
       className: "center-pane"
     }, /*#__PURE__*/React.createElement(PlayerManager, {
+      setPlaylists: this._setPlaylists,
       onDoubleClick: this._playSongFromPlaylist,
       activePlaylist: this.state.activePlaylist,
       activePlaylistSong: this.state.activePlaylistSong,

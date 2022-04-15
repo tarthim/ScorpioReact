@@ -131,6 +131,16 @@ class Scorpio extends React.Component {
         })
     }
 
+    _setPlaylists = (allPlaylists, activePlaylistID) => {
+        // Get new active playlist
+        let activePlaylist = allPlaylists.find(x => x.id === activePlaylistID)
+        
+        this.setState({
+            playlists: allPlaylists,
+            activePlaylist: activePlaylist
+        })
+    }
+
     _requestMetadata = async (url) => {
         let result = await window.electronAPI.handleGetMetadata(url)
         return result
@@ -139,17 +149,9 @@ class Scorpio extends React.Component {
     _addSongToPlaylist = async (url) => {
         // Only works when we have a playlist active
         if (this.state.activePlaylist != null) {
-            // first request information we need to add to front-end, update state, etc
-            let activePlaylist = this.state.activePlaylist
-            // console.log(activePlaylist)
-            // Get metadata for song
-            let metadata = await this._requestMetadata(url)
-            activePlaylist.content.push({url, metadata})
-            
-            this.setState({activePlaylist: activePlaylist})
-
-            // When front-end is done, send FULL new playlist to be saved by the back-end!
-            await window.electronAPI.handlePlaylistUpdate(activePlaylist)
+            let activePlaylistID = this.state.activePlaylist.id
+            let updatedPlaylists = await window.electronAPI.handleAddPathToPlaylist(this.state.activePlaylist.id, url)
+            this._setPlaylists(updatedPlaylists, activePlaylistID)
         }
     }
 
@@ -291,7 +293,7 @@ class Scorpio extends React.Component {
                         </div>
 
                         <div className="center-pane">
-                            <PlayerManager onDoubleClick={this._playSongFromPlaylist} activePlaylist={this.state.activePlaylist} activePlaylistSong={this.state.activePlaylistSong} setActivePlaylistContent={this._setActivePlaylistContent} setActivePlaylistSong={this._setActivePlaylistSong}/>
+                            <PlayerManager setPlaylists={this._setPlaylists} onDoubleClick={this._playSongFromPlaylist} activePlaylist={this.state.activePlaylist} activePlaylistSong={this.state.activePlaylistSong} setActivePlaylistContent={this._setActivePlaylistContent} setActivePlaylistSong={this._setActivePlaylistSong}/>
                         </div>
 
                         <div className="right-pane">

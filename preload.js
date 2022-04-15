@@ -1,5 +1,4 @@
 const { ipcRenderer, contextBridge } = require("electron")
-const fs = require('fs')
 
 contextBridge.exposeInMainWorld('electronAPI', {
     // Invokes (Renderer --> Main)
@@ -9,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     handleNewPlaylist: () => ipcRenderer.invoke('handle:addPlaylist'),
     handleDeletePlaylist: (pl) => ipcRenderer.invoke('handle:deletePlaylist', pl),
     handleRetrievePlaylists: () => ipcRenderer.invoke('handle:getPlaylists'),
+    handleAddPathToPlaylist: (pl, path) => ipcRenderer.invoke('handle:addPathToPlaylist', pl, path),
     handlePlaylistUpdate: (playlist) => ipcRenderer.invoke('handle:playlistUpdate', playlist),
     handlePlaylistFinished: () => ipcRenderer.invoke('handle:playlistFinished'),
     handlePaletteSave: (palette) => ipcRenderer.invoke('handle:savePalette', palette),
