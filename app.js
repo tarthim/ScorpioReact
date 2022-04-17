@@ -226,10 +226,10 @@ const bindIPC = (win) => {
             let rawMetadata = await mm.parseFile(url)
             let metadata = metadataTransformer.transformMetadata(rawMetadata)
             playlist.content.push({url, metadata, id: nextSongID})
-
-            // Manage song IDs
-            playlist.lastSongID = nextSongID
         }
+
+        // Manage song IDs
+        playlist.lastSongID = nextSongID
 
         // Update change in storage and back to renderer
         nconf.stores.app.set('app:playlists', allPlaylists)
