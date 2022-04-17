@@ -7,7 +7,6 @@ class TitleBar extends React.PureComponent {
         }
         return (
             <div className="titlebar">
-
                 <div id="song-info">{titleLine}</div>
                 <div id="app-title">Scorpio</div>
                 <div id="titlebar-buttons">
@@ -15,8 +14,6 @@ class TitleBar extends React.PureComponent {
                     <div id="maximize-button" className="title-button">O</div>
                     <div id="close-button" className="title-button">X</div>
                 </div>
-
-                {this.props.albumArt && <img id="titlebar-style" src={this.props.albumArt}></img>}
             </div>
         )
     }

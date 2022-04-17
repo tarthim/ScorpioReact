@@ -41,16 +41,18 @@ html, body {
 #titlebar-style {
     position: absolute;
     left: 0px;
+    top: 0px;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: blur(1px) opacity(0.6);
+    filter: opacity(0.2);
 }
 
 .topbar-left {
     display: flex;
     flex-direction: row;
     height: 100%;
+    z-index: 100;
 }
 
 .titlebar {
@@ -124,6 +126,10 @@ html, body {
     width: 100%;
     height: 100%;
     font-size: 14px;
+}
+
+.top-pane {
+    position: relative;
 }
 
 .left-pane {

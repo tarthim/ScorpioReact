@@ -24,10 +24,7 @@ class TitleBar extends React.PureComponent {
     }, "O"), /*#__PURE__*/React.createElement("div", {
       id: "close-button",
       className: "title-button"
-    }, "X")), this.props.albumArt && /*#__PURE__*/React.createElement("img", {
-      id: "titlebar-style",
-      src: this.props.albumArt
-    }));
+    }, "X")));
   }
 
 }

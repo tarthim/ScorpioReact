@@ -285,6 +285,7 @@ class Scorpio extends React.Component {
                     <div className="top-pane">
                         <TitleBar nowPlaying={this.state.nowPlayingInfo} albumArt={this.state.albumArt}/>
                         <TopBar audio={this.state.audio} togglePlaying={this.state.togglePlaying} seekCurrentPlaying={this._setCurrentPlayingToTime} activePlaylist={this.state.activePlaylist}/>
+                        {this.state.albumArt && <img id="titlebar-style" src={this.state.albumArt}></img>}
                     </div>
 
                     <div className="main-pane">

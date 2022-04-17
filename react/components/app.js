@@ -284,6 +284,9 @@ class Scorpio extends React.Component {
       togglePlaying: this.state.togglePlaying,
       seekCurrentPlaying: this._setCurrentPlayingToTime,
       activePlaylist: this.state.activePlaylist
+    }), this.state.albumArt && /*#__PURE__*/React.createElement("img", {
+      id: "titlebar-style",
+      src: this.state.albumArt
     })), /*#__PURE__*/React.createElement("div", {
       className: "main-pane"
     }, /*#__PURE__*/React.createElement("div", {
