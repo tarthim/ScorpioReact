@@ -71,6 +71,7 @@ class Scorpio extends React.Component {
 
         this.state.audio.addEventListener("ended", (e) => {
             // Event handler when song has ended
+            this._songFinished();
             // Check if there is another song to play in the queue, start song, pop out of playlist
             if (this.state.songQueue && this.state.songQueue !== undefined && this.state.songQueue.length > 0) {
                 // Play next item in queue
@@ -165,6 +166,10 @@ class Scorpio extends React.Component {
         this.setState({
             nowPlayingInfo: songInfo
         })
+    }
+
+    _songFinished = () => {
+        window.electronAPI.handleSongFinished()
     }
 
     _playSong = (url) => {

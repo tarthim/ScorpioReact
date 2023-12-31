@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     handlePlaylistUpdate: (playlist) => ipcRenderer.invoke('handle:playlistUpdate', playlist),
     handlePlaylistFinished: () => ipcRenderer.invoke('handle:playlistFinished'),
     handlePaletteSave: (palette) => ipcRenderer.invoke('handle:savePalette', palette),
+    handleSongFinished: () => ipcRenderer.invoke('handle:songFinished'),
 
     // On (Main --> Renderer)
     onTestMessage: (msg) => ipcRenderer.on('test-message', msg),

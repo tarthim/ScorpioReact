@@ -2,11 +2,9 @@ class TitleBar extends React.PureComponent {
   render() {
     console.log(this.props.albumArt);
     let titleLine = "";
-
     if (this.props.nowPlaying != null) {
       titleLine = this.props.nowPlaying.artist + " - " + this.props.nowPlaying.title;
     }
-
     return /*#__PURE__*/React.createElement("div", {
       className: "titlebar"
     }, /*#__PURE__*/React.createElement("div", {
@@ -26,7 +24,5 @@ class TitleBar extends React.PureComponent {
       className: "title-button"
     }, "X")));
   }
-
 }
-
 export default TitleBar;

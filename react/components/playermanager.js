@@ -1,20 +1,17 @@
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 import PlaylistItem from "./playlistitem.js";
-
 class PlayerManager extends React.Component {
   constructor(props) {
     super(props);
-
     _defineProperty(this, "_renderContent", () => {
       let content = [];
       let playlistContent = [];
-
       if (this.props.activePlaylist != null) {
         for (const song in this.props.activePlaylist.content) {
           let songContent = this.props.activePlaylist.content[song];
-          let uniqueKey = this.props.activePlaylist.id + '-' + songContent.id; // console.log(songContent)
+          let uniqueKey = this.props.activePlaylist.id + '-' + songContent.id;
 
+          // console.log(songContent)
           playlistContent.push({
             uniqueKey,
             songContent
@@ -29,28 +26,24 @@ class PlayerManager extends React.Component {
           }));
         }
       }
-
       this.props.setActivePlaylistContent(playlistContent);
       return content;
     });
-
     _defineProperty(this, "_onDragOver", e => {
       e.preventDefault();
     });
-
     _defineProperty(this, "_onDrop", async e => {
       // Event when FileNode gets dropped on a playlist
       let path = e.dataTransfer.getData("text/path");
-      let playlist = this.props.activePlaylist; // Gets back all playlists, including the updated one
+      let playlist = this.props.activePlaylist;
 
+      // Gets back all playlists, including the updated one
       let updatedPlaylists = await window.electronAPI.handleAddPathToPlaylist(playlist.id, path);
       this.props.setPlaylists(updatedPlaylists, playlist.id);
     });
   }
-
   render() {
     let content = this._renderContent();
-
     if (this.props.activePlaylist == null) return /*#__PURE__*/React.createElement("div", null);
     return /*#__PURE__*/React.createElement("div", {
       className: "main-playlist",
@@ -76,7 +69,5 @@ class PlayerManager extends React.Component {
       className: "column"
     }, "Encoding")), content));
   }
-
 }
-
 export default PlayerManager;

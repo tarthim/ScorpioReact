@@ -1,20 +1,16 @@
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 class FileNode extends React.PureComponent {
   constructor(props) {
     super(props);
-
     _defineProperty(this, "_switchExpanded", () => {
       this.setState({
         expandFolder: this.state.expandFolder ? false : true
       });
     });
-
     _defineProperty(this, "_showContextMenu", e => {
       e.preventDefault();
       this.props.rightClick(e, "SONG", this.props.content);
     });
-
     _defineProperty(this, "_onDragStart", e => {
       // Only drag/drop the lowest div, aka, the actual event
       if (e.target === e.currentTarget) {
@@ -22,29 +18,24 @@ class FileNode extends React.PureComponent {
         e.dataTransfer.setData("text/path", this.props.content.path);
       }
     });
-
     this.state = {
       expandFolder: this.props.startExpanded
     };
   }
-
   render() {
     let cont = this.props.content;
     let children = this.props.children;
     let offset = "p-" + this.props.depth;
     let className = "node " + offset;
     let showChildren = " hidden";
-
     if (cont.isFolder) {
       className += " folder";
       if (this.state.expandFolder) showChildren = "";
     } else {
       className += " file";
     }
-
     let onClick;
     let onContext;
-
     if (cont.isFolder) {
       onClick = () => this._switchExpanded();
     } else {
@@ -52,10 +43,8 @@ class FileNode extends React.PureComponent {
       onClick = () => {
         this.props.playSong(cont.path);
       };
-
       onContext = e => this._showContextMenu(e);
     }
-
     return /*#__PURE__*/React.createElement("div", {
       className: className,
       draggable: "true",
@@ -70,7 +59,5 @@ class FileNode extends React.PureComponent {
       key: cont.path + "-content"
     }, children));
   }
-
 }
-
 export default FileNode;

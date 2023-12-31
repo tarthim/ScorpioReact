@@ -102,6 +102,15 @@ const bindIPC = (win) => {
         return metadataTransformer.transformMetadata(metadata)
     })
 
+    ipcMain.handle('handle:songFinished', () => {
+        artist = player.Playing.artist
+        title = player.Playing.title
+        album = player.Playing.album
+        
+        // Scrobble this song
+        _lfmScrobbleSong(artist, title, album)
+    });
+
     // Receives a full playlist from client, updates
     ipcMain.handle('handle:playlistUpdate', async (e, playlist) => {
         let playlistID = playlist.id
@@ -124,7 +133,6 @@ const bindIPC = (win) => {
 
     ipcMain.handle('handle:playSong', async (e, url) => {
         // Renderer is playing a new song. Collect information in the background.
-
         // First send metadata asap
         let metadata = await mm.parseFile(url)
         win.webContents.send('song-metadata', metadata)
@@ -140,8 +148,13 @@ const bindIPC = (win) => {
         player.LastPlayed = lastPlayed
         let currentPlaying = new PlayInfo(basePath)
         player.Playing = currentPlaying
+        player.Playing.artist = metadata.common.artist
+        player.Playing.title = metadata.common.title
+        player.Playing.album = metadata.common.album
 
         console.log(player)
+
+        _lfmUpdateNowPlaying(player.Playing.artist, player.Playing.title, player.Playing.album)
 
         // Actions to do when basepath is different, aka, playing from different directory/album:
         if (player.LastPlayed.Basedir !== player.Playing.Basedir) {
@@ -389,6 +402,56 @@ const _getVibrantColors = async (url) => {
     return result
 }
 
+const _lfmUpdateNowPlaying = (artist, track, album) => {
+    sig = _buildLastFmSignature([
+        {key: 'api_key', value: lastfmApikey},
+        {key: 'artist', value: artist},
+        {key: 'track', value: track},
+        {key: 'album', value: album},
+        {key: 'method', value: 'track.updateNowPlaying'},
+        {key: 'sk', value: lastfmSessionkey}
+    ])
+
+    const scrobbleEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.updateNowPlaying&artist=${artist}&track=${track}&album=${album}&api_key=${lastfmApikey}&api_sig=${sig}&sk=${lastfmSessionkey}&api_sig=${sig}&format=json`
+    axios.post(scrobbleEndpoint)
+        .catch((error) => {
+            if (error.response) {
+                console.error(error.response.data);
+                console.error(error.response.status);
+                console.error(error.response.headers);
+            }
+        }
+    );
+}
+
+const _lfmScrobbleSong = (artist, track, album) => {
+    console.log("Scrobbling song")
+    const currentDateTime = new Date();
+    const lfmTime = new Date(currentDateTime.getTime()); // Subtract 3 minutes in milliseconds
+    const lfmTimestamp = Math.floor(lfmTime.getTime() / 1000);
+
+    sig = _buildLastFmSignature([
+        {key: 'api_key', value: lastfmApikey},
+        {key: 'artist', value: artist},
+        {key: 'track', value: track},
+        {key: 'timestamp', value: lfmTimestamp},
+        {key: 'album', value: album},
+        {key: 'method', value: 'track.scrobble'},
+        {key: 'sk', value: lastfmSessionkey}
+    ])
+
+    const scrobbleEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.scrobble&artist=${artist}&track=${track}&timestamp=${lfmTimestamp}&album=${album}&api_key=${lastfmApikey}&api_sig=${sig}&sk=${lastfmSessionkey}&api_sig=${sig}&format=json`
+    axios.post(scrobbleEndpoint)
+        .catch((error) => {
+            if (error.response) {
+                console.error(error.response.data);
+                console.error(error.response.status);
+                console.error(error.response.headers);
+            }
+        }
+    );
+}
+
 const _buildLastFmSignature = (params) => {
     orderedParams = params.sort((a, b) => a.key.localeCompare(b.key))
     let sharedSecret = null
@@ -409,10 +472,7 @@ const _buildLastFmSignature = (params) => {
     orderedParams.forEach((param) => {
         signature += param.key + param.value
     })
-
     signature += sharedSecret
-
-    console.log(signature)
 
     const hashSig = crypto.createHash('md5').update(signature).digest('hex');
     return hashSig

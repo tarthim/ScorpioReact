@@ -1,5 +1,4 @@
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 import FileBrowser from "./filebrowser.js";
 import TitleBar from "./titlebar.js";
 import TopBar from "./topbar.js";
@@ -7,40 +6,33 @@ import ContextMenu from "./contextmenu.js";
 import PlaylistManagerVertical from "./playlistvertical.js";
 import PlayerManager from "./playermanager.js";
 import ColorManager from "./colormanager.js";
-
 class Scorpio extends React.Component {
   constructor(props) {
     super(props);
-
     _defineProperty(this, "_loadFileStructure", async dir => {
       var dirTree = await window.electronAPI.handleDirectoryBase(dir);
       return dirTree;
     });
-
     _defineProperty(this, "_setActivePlaylist", playlist => {
       this.setState({
         activePlaylist: playlist
       });
     });
-
     _defineProperty(this, "_setPlayingPlaylist", playlist => {
       this.setState({
         playingPlaylist: playlist
       });
     });
-
     _defineProperty(this, "_setEditPlaylist", pl => {
       this.setState({
         playlistInEdit: pl
       });
     });
-
     _defineProperty(this, "_clearEditPlaylist", () => {
       this.setState({
         playlistInEdit: null
       });
     });
-
     _defineProperty(this, "_setPlaylists", (allPlaylists, activePlaylistID) => {
       // Get new active playlist
       let activePlaylist = allPlaylists.find(x => x.id === activePlaylistID);
@@ -49,58 +41,52 @@ class Scorpio extends React.Component {
         activePlaylist: activePlaylist
       });
     });
-
     _defineProperty(this, "_requestMetadata", async url => {
       let result = await window.electronAPI.handleGetMetadata(url);
       return result;
     });
-
     _defineProperty(this, "_addSongToPlaylist", async url => {
       // Only works when we have a playlist active
       if (this.state.activePlaylist != null) {
         let activePlaylistID = this.state.activePlaylist.id;
         let updatedPlaylists = await window.electronAPI.handleAddPathToPlaylist(this.state.activePlaylist.id, url);
-
         this._setPlaylists(updatedPlaylists, activePlaylistID);
       }
     });
-
     _defineProperty(this, "_handleNewMetadata", metadata => {
       // Create new song info
-      let songInfo = new SongInformation(metadata.common.artist, metadata.common.title, metadata.common.album); // Set as application title
-
-      document.title = metadata.common.artist + " - " + metadata.common.title; // Set state to update the UI
-
+      let songInfo = new SongInformation(metadata.common.artist, metadata.common.title, metadata.common.album);
+      // Set as application title
+      document.title = metadata.common.artist + " - " + metadata.common.title;
+      // Set state to update the UI
       this.setState({
         nowPlayingInfo: songInfo
       });
     });
-
+    _defineProperty(this, "_songFinished", () => {
+      window.electronAPI.handleSongFinished();
+    });
     _defineProperty(this, "_playSong", url => {
       // Handler for playing music
       // Prio 1: play song
       this.state.audio.src = url;
-      this.state.audio.play(); // Let main thread know we started playing a song
-
+      this.state.audio.play();
+      // Let main thread know we started playing a song
       window.electronAPI.handlePlaySong(url);
       console.log(this.state.audio);
     });
-
     _defineProperty(this, "_playSongFromFileTree", url => {
       // Clear playlist indicator
       this.setState({
         activePlaylistSong: null
       });
-
       this._playSong(url);
     });
-
     _defineProperty(this, "_playSongFromPlaylist", (url, songID) => {
       // console.log(songID)
       // First: play song
-      this._playSong(url); // Then: set up song queue
-
-
+      this._playSong(url);
+      // Then: set up song queue
       if (window.lastActivePlaylistContent) {
         // Get index of clicked item
         // Remove everything before current song + current song
@@ -111,38 +97,34 @@ class Scorpio extends React.Component {
         });
       }
     });
-
     _defineProperty(this, "_addNewPlaylist", async () => {
       // Get new playlist info
-      let newPlaylist = await window.electronAPI.handleNewPlaylist(); // Add to our playlist array
-
+      let newPlaylist = await window.electronAPI.handleNewPlaylist();
+      // Add to our playlist array
       let currentPlaylists = this.state.playlists;
-      currentPlaylists.push(newPlaylist); // Set new state with new playlist included
+      currentPlaylists.push(newPlaylist);
 
+      // Set new state with new playlist included
       this.setState({
         playlists: currentPlaylists
       });
     });
-
     _defineProperty(this, "_removePlaylist", async plID => {
       let playlistUpdate = await window.electronAPI.handleDeletePlaylist(plID);
       this.setState({
         playlists: playlistUpdate
       });
     });
-
     _defineProperty(this, "_togglePlaying", () => {
       // Handler for toggling playing
       this.state.audio.paused ? this.state.audio.play() : this.state.audio.pause();
     });
-
     _defineProperty(this, "_handleLeftClickGlobal", e => {
       if (this.state.showContextMenu) {
         this.setState({
           showContextMenu: false
         });
       }
-
       if (e.target.className !== 'playlist') {
         // YOU SHOULD ALSO SAVE THE PLAYLIST...
         this.setState({
@@ -150,10 +132,10 @@ class Scorpio extends React.Component {
         });
       }
     });
-
     _defineProperty(this, "_activateContextMenu", (e, type, content) => {
-      let lastState = this.state.contextMenuState; // Change state
+      let lastState = this.state.contextMenuState;
 
+      // Change state
       lastState.X = e.clientX;
       lastState.Y = e.clientY;
       lastState.Type = type;
@@ -163,17 +145,14 @@ class Scorpio extends React.Component {
         contextMenuState: lastState
       });
     });
-
     _defineProperty(this, "_setActivePlaylistContent", content => {
       window.lastActivePlaylistContent = content;
     });
-
     _defineProperty(this, "_setActivePlaylistSong", id => {
       this.setState({
         activePlaylistSong: id
       });
     });
-
     this.state = {
       // current playing
       playing: null,
@@ -208,7 +187,6 @@ class Scorpio extends React.Component {
       playlistInEdit: null
     };
   }
-
   async componentDidMount() {
     // Register to main thread messages
     window.electronAPI.onTestMessage((_event, value) => {
@@ -231,6 +209,7 @@ class Scorpio extends React.Component {
     });
     this.state.audio.addEventListener("ended", e => {
       // Event handler when song has ended
+      this._songFinished();
       // Check if there is another song to play in the queue, start song, pop out of playlist
       if (this.state.songQueue && this.state.songQueue !== undefined && this.state.songQueue.length > 0) {
         // Play next item in queue
@@ -238,9 +217,7 @@ class Scorpio extends React.Component {
         let currentQueue = this.state.songQueue;
         let nextSong = currentQueue.shift();
         console.log(nextSong);
-
         this._playSong(nextSong.songContent.url);
-
         this.setState({
           songQueue: currentQueue,
           activePlaylistSong: nextSong.uniqueKey
@@ -260,6 +237,8 @@ class Scorpio extends React.Component {
     });
     window.lastActivePlaylistContent = null;
   }
+
+  // This is really: propegateMetadata (from main --> renderer)
 
   render() {
     return /*#__PURE__*/React.createElement("div", {
@@ -319,18 +298,14 @@ class Scorpio extends React.Component {
       setActivePlaylist: this._setActivePlaylist
     })))), /*#__PURE__*/React.createElement(ColorManager, null));
   }
-
 }
-
 class SongInformation {
   constructor(artist, title, album) {
     this.artist = artist;
     this.title = title;
     this.album = album;
   }
-
 }
-
 class ContextMenuState {
   constructor(x, y, content, type, path = null) {
     this.X = x;
@@ -338,7 +313,5 @@ class ContextMenuState {
     this.Content = content;
     this.Type = type;
   }
-
 }
-
 export default Scorpio;
