@@ -8,12 +8,22 @@ const nconf = require('nconf')
 const metadataTransformer = require('./shared/helpers/extractMetadata.js')
 const Vibrant = require('node-vibrant')
 
+const axios = require('axios')
+const open = require('open')
+const crypto = require('crypto')
+
 const store = './storage/'
 const localConfigFile = 'scorpio.json'
 const localFiletreeFile = 'filetree.json'
 const localColorFile = 'colors.json'
 
+const lfmApikeyLocation = './scorpio_lastfm_api.txt'
+const lfmSessionkeyLocation = './lastfm_session.txt'
+const lfmSharedSecretLocation = './lastfm_sharedsecret.txt'
+
 let player = null
+let lastfmApikey = null
+let lastfmSessionkey = null
 
 async function readDirectoryTree(dir, ignoreCache) {
     console.log('Reading directory ' + dir)
@@ -379,6 +389,128 @@ const _getVibrantColors = async (url) => {
     return result
 }
 
+const _buildLastFmSignature = (params) => {
+    orderedParams = params.sort((a, b) => a.key.localeCompare(b.key))
+    let sharedSecret = null
+    // Append secret
+    try {
+        const data = fs.readFileSync(lfmSharedSecretLocation, 'utf8');
+        
+        // Handle the data here
+        if (data) {
+            sharedSecret = data;
+        }
+    } catch (err) {
+        // Handle errors here
+        console.error(err);
+    }
+
+    let signature = ''
+    orderedParams.forEach((param) => {
+        signature += param.key + param.value
+    })
+
+    signature += sharedSecret
+
+    console.log(signature)
+
+    const hashSig = crypto.createHash('md5').update(signature).digest('hex');
+    return hashSig
+}
+
+const _getLastFmSession = async (lastfmToken) => {
+    const activeSessionEndpoint = `http://www.last.fm/api/auth/?api_key=${lastfmApikey}&token=${lastfmToken}`
+    open(activeSessionEndpoint)
+    // Give user time to click accept 🤷🏻‍♂️
+    await new Promise(resolve => setTimeout(resolve, 10000));
+
+    // The lastfmToken is now authorized, we can request a session key
+    // Build signature
+    const params = [
+        {key: 'api_key', value: lastfmApikey},
+        {key: 'method', value: 'auth.getSession'},
+        {key: 'token', value: lastfmToken}
+    ]
+    const signature = _buildLastFmSignature(params)
+    console.log(signature)
+
+    const getSessionKeyEndpoint = `http://ws.audioscrobbler.com/2.0/?method=auth.getSession&token=${lastfmToken}&api_key=${lastfmApikey}&api_sig=${signature}&format=json`
+    axios.get(getSessionKeyEndpoint)
+        .then((response) => {
+            if (response.status == 200) {
+                console.log(response.data.session)
+                // Save session key to file
+                fs.writeFile(lfmSessionkeyLocation, response.data.session.key, (err) => {
+                    console.log("Writing new session key. Scrobbling will work on next start.")
+                    if (err) {
+                        console.error(err)
+                    }
+                })
+                return lfmSessionkeyLocation
+            }
+        }).catch((error) => {
+            if (error.response) {
+                console.error(error.response.data);
+                console.error(error.response.status);
+                console.error(error.response.headers);
+            }
+        });
+}
+
+const _requestLastFmSession = async () => {
+    // http://ws.audioscrobbler.com/2.0/?method=auth.gettoken&api_key=&format=json
+    const getTokenEndpoint = `http://ws.audioscrobbler.com/2.0/?method=auth.gettoken&api_key=${lastfmApikey}&format=json`
+    // Send GET request to get token
+    axios.get(getTokenEndpoint)
+        .then(async (response) => {
+            if (response.status == 200) {
+                return await _getLastFmSession(response.data.token);
+            }
+        }), (error) => {
+            console.log(error);
+        }
+}
+
+const _setupLastFm = async () => {
+    // API KEY (Sync read, we need it in the next step)
+    try {
+        const fileContent = fs.readFileSync(lfmApikeyLocation, 'utf8')
+        lastfmApikey = fileContent
+    } catch (err) {
+        console.log("Could not find last.fm API key file. Please create a file called scorpio_lastfm_api.txt in the root directory of the application and paste the Scorpio API key there.")
+        console.error(err)
+    }
+
+    // SESSION
+    try {
+        if (!fs.existsSync(lfmSessionkeyLocation)) {
+            // Create session token file
+            fs.open(lfmSessionkeyLocation, 'w', (err, fd) => {
+                if (err) {
+                    throw err;
+                } 
+            });
+        }
+    } catch (err) {
+        console.error(err)
+    }
+    
+    // Read contens of lastfm_session.txt
+    sesToken = null
+    fs.readFile(lfmSessionkeyLocation, 'utf8', async (err, data) => {
+        if (err) {
+            console.error(err)
+            return
+        }
+        if (data) {
+            lastfmSessionkey = data
+        } else {
+            console.log('No last.fm session token found. Request token.')
+            lastfmSessionkey = await _requestLastFmSession()
+        }
+    });
+}
+
 const initialize = async () => {
     // IF /storage/ does not exist, create:
     initLocalStorage()
@@ -392,6 +524,8 @@ const initialize = async () => {
     nconf.file('filetree', store + localFiletreeFile)
     nconf.file('colors', store + localColorFile)
     nconf.load()
+
+    _setupLastFm()
 }
 
 const initRenderer = async (window) => {

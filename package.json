@@ -30,10 +30,12 @@
     "electron": "^17.1.0"
   },
   "dependencies": {
+    "axios": "^1.6.3",
     "electron-squirrel-startup": "^1.0.0",
     "music-metadata": "^7.12.2",
     "nconf": "^0.11.3",
     "node-vibrant": "^3.2.1-alpha.1",
+    "open": "^8.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
