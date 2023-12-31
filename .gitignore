@@ -3,4 +3,4 @@ out
 .vs
 .vscode
 storage
-lastfm_token.txt
+lastfm_session.txt
