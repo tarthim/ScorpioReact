@@ -106,9 +106,10 @@ const bindIPC = (win) => {
         artist = player.Playing.artist
         title = player.Playing.title
         album = player.Playing.album
+        timestamp = player.Playing.startTime
         
         // Scrobble this song
-        _lfmScrobbleSong(artist, title, album)
+        _lfmScrobbleSong(artist, title, album, timestamp)
     });
 
     // Receives a full playlist from client, updates
@@ -151,6 +152,7 @@ const bindIPC = (win) => {
         player.Playing.artist = metadata.common.artist
         player.Playing.title = metadata.common.title
         player.Playing.album = metadata.common.album
+        player.Playing.startTime = _getCurrentTimestampUnix()
 
         console.log(player)
 
@@ -424,23 +426,26 @@ const _lfmUpdateNowPlaying = (artist, track, album) => {
     );
 }
 
-const _lfmScrobbleSong = (artist, track, album) => {
-    console.log("Scrobbling song")
+const _getCurrentTimestampUnix = () => {
     const currentDateTime = new Date();
-    const lfmTime = new Date(currentDateTime.getTime()); // Subtract 3 minutes in milliseconds
-    const lfmTimestamp = Math.floor(lfmTime.getTime() / 1000);
+    const lfmTime = new Date(currentDateTime.getTime());
+    return Math.floor(lfmTime.getTime() / 1000);
+}
+
+const _lfmScrobbleSong = (artist, track, album, timestamp) => {
+    console.log("Scrobbling song")
 
     sig = _buildLastFmSignature([
         {key: 'api_key', value: lastfmApikey},
         {key: 'artist', value: artist},
         {key: 'track', value: track},
-        {key: 'timestamp', value: lfmTimestamp},
+        {key: 'timestamp', value: timestamp},
         {key: 'album', value: album},
         {key: 'method', value: 'track.scrobble'},
         {key: 'sk', value: lastfmSessionkey}
     ])
 
-    const scrobbleEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.scrobble&artist=${artist}&track=${track}&timestamp=${lfmTimestamp}&album=${album}&api_key=${lastfmApikey}&api_sig=${sig}&sk=${lastfmSessionkey}&api_sig=${sig}&format=json`
+    const scrobbleEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.scrobble&artist=${artist}&track=${track}&timestamp=${timestamp}&album=${album}&api_key=${lastfmApikey}&api_sig=${sig}&sk=${lastfmSessionkey}&api_sig=${sig}&format=json`
     axios.post(scrobbleEndpoint)
         .catch((error) => {
             if (error.response) {
