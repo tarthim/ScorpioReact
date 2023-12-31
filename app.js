@@ -15,24 +15,25 @@ const localColorFile = 'colors.json'
 
 let player = null
 
-async function readDirectoryTree(dir, onlyOnce) {
+async function readDirectoryTree(dir, ignoreCache) {
     console.log('Reading directory ' + dir)
     // First check if there is a tree to pass back in our cache
 
-    // Forced refresh seems to be a little glitched
-    // Make sure that there is no data leak into colors.json, please
+    // TODO: Replace with external scanner
     let forceRefresh = false;
 
-    let tree = nconf.stores.filetree.get(dir)
+    let tree = nconf.stores.filetree.get(dir);
     
-    if (tree && !forceRefresh && !onlyOnce) {
-        console.log('Returning cached file tree')
-        return tree
+    if (tree && !forceRefresh && !ignoreCache) {
+        console.log('Returning cached file tree');
+        return tree;
     }
     else {
         // Await fs information here, pass back to preload.js handler
         let fileTree = await readFilesystem(dir)
-        if (!onlyOnce) {
+        // This function also gets used for smaller directory requests, we do not want these requests cached
+        // This probably needs to be refactored into a handler (nconf) and a function
+        if (!ignoreCache) {
             nconf.stores.filetree.set(dir, fileTree)
             saveConfig()
         }
@@ -45,7 +46,9 @@ const createWindow = () => {
     const win = new BrowserWindow({
         width: 1450,
         height: 1000,
+        icon: path.join(__dirname, '/resources/logo.ico'),
         frame: false,
+        transparent: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
@@ -157,8 +160,8 @@ const bindIPC = (win) => {
                         palette.LightMuted.hex // Contrast
                     )
     
-                    console.log('Bug debugger:')
-                    console.log(player)
+                    // console.log('Bug debugger:')
+                    // console.log(player)
                     
                     nconf.stores.colors.set(player.Playing.Basedir, colorInfo)
                     saveConfig()
@@ -344,37 +347,30 @@ const createEmptyPlaylist = (name) => {
 }
 
 const _findAlbumArt = async (path) => {
-    // Finds album art in path
-    // TODO: Implement fallback on web?
+    // Finds album art in path by finding first png/jpg file
+    // Get all files at path
+    const content = fs.readdirSync(path);
 
-    let possibleNames = ['cover.jpg', 'front.jpg', 'folder.jpg']
-    let albumArtLocation
+    // console.log(content)
 
-    for (let i = 0; i < possibleNames.length; i++) {
-        let fullPath = path + possibleNames[i];
-        let fileAtPath = await fs.promises.access(fullPath, fs.constants.F_OK)
-        .then(() => true)
-        .catch(() => false)
-
-        if (fileAtPath) {
-            albumArtLocation = fullPath
-            break
-        }
+    // Get file ending in .jpg or .png
+    let coverFile = content.find((x) => x.endsWith('.png') || x.endsWith('.jpg'))
+    
+    // If no cover file found, return null
+    if (!coverFile) {
+        return null
     }
-
-    return albumArtLocation
+    else {
+        // Return full path
+        let result = path + '\\' + coverFile
+        console.log(result)
+        return result
+    }
 }
 
 
 // API: Ask Vibrant for a palette from url
 const _getVibrantColors = async (url) => {
-    // let palette = Vibrant.from(url).maxColorCount(128).getPalette()
-    // .then((palette) => {
-    //     console.log(palette)
-    //     return palette
-    // })
-    // return palette
-
     let vibrant = new Vibrant(url)
     let result = vibrant.getPalette((err, palette) => {
         return palette

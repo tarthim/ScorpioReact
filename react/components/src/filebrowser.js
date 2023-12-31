@@ -9,8 +9,8 @@ class FileBrowser extends React.PureComponent {
     }
     
     _mapSongTree = () => {
-        const result = []
         if (this.props.songTree === null) return (<div>Loading content...</div>)
+        const result = []
 
         for (const item in this.props.songTree) {
             result.push(this._generateTree(this.props.songTree[item], -1, true))

@@ -7,8 +7,8 @@ class FileBrowser extends React.PureComponent {
     super(props);
 
     _defineProperty(this, "_mapSongTree", () => {
-      const result = [];
       if (this.props.songTree === null) return /*#__PURE__*/React.createElement("div", null, "Loading content...");
+      const result = [];
 
       for (const item in this.props.songTree) {
         result.push(this._generateTree(this.props.songTree[item], -1, true));

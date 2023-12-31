@@ -13,8 +13,8 @@ class PlayerManager extends React.Component {
       if (this.props.activePlaylist != null) {
         for (const song in this.props.activePlaylist.content) {
           let songContent = this.props.activePlaylist.content[song];
-          let uniqueKey = this.props.activePlaylist.id + '-' + songContent.id;
-          console.log(songContent);
+          let uniqueKey = this.props.activePlaylist.id + '-' + songContent.id; // console.log(songContent)
+
           playlistContent.push({
             uniqueKey,
             songContent

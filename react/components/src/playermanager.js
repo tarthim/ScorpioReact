@@ -13,7 +13,7 @@ class PlayerManager extends React.Component {
                 let songContent = this.props.activePlaylist.content[song]
                 let uniqueKey = this.props.activePlaylist.id + '-' + songContent.id
 
-                console.log(songContent)
+                // console.log(songContent)
                 playlistContent.push({uniqueKey, songContent})
                 content.push(
                         (
