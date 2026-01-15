@@ -25,31 +25,30 @@ let player = null
 let lastfmApikey = null
 let lastfmSessionkey = null
 
+let forceRefresh = false;
+
 async function readDirectoryTree(dir, ignoreCache) {
     console.log('Reading directory ' + dir)
     // First check if there is a tree to pass back in our cache
 
     // TODO: Replace with external scanner
-    let forceRefresh = false;
-
     let tree = nconf.stores.filetree.get(dir);
-    
+
     if (tree && !forceRefresh && !ignoreCache) {
         console.log('Returning cached file tree');
         return tree;
     }
-    else {
-        // Await fs information here, pass back to preload.js handler
-        let fileTree = await readFilesystem(dir)
-        // This function also gets used for smaller directory requests, we do not want these requests cached
-        // This probably needs to be refactored into a handler (nconf) and a function
-        if (!ignoreCache) {
-            nconf.stores.filetree.set(dir, fileTree)
-            saveConfig()
-        }
 
-        return fileTree
+    // Await fs information here, pass back to preload.js handler
+    let fileTree = await readFilesystem(dir)
+    // This function also gets used for smaller directory requests, we do not want these requests cached
+    // This probably needs to be refactored into a handler (nconf) and a function
+    if (!ignoreCache) {
+        nconf.stores.filetree.set(dir, fileTree)
+        saveConfig()
     }
+
+    return fileTree
 }
 
 const createWindow = () => {
@@ -107,7 +106,7 @@ const bindIPC = (win) => {
         title = player.Playing.title
         album = player.Playing.album
         timestamp = player.Playing.startTime
-        
+
         // Scrobble this song
         _lfmScrobbleSong(artist, title, album, timestamp)
     });
@@ -125,10 +124,10 @@ const bindIPC = (win) => {
 
     ipcMain.handle('handle:savePalette', async (e, palette) => {
         if (palette) {
-           if (player.Playing.Basedir) {
+            if (player.Playing.Basedir) {
                 nconf.stores.colors.set(player.Playing.Basedir, palette)
                 saveConfig()
-           }
+            }
         }
     })
 
@@ -168,7 +167,7 @@ const bindIPC = (win) => {
             if (coverArtUrl) {
                 // First check if we have colors in our cache for this basePath
                 let colorInfo = nconf.stores.colors.get(player.Playing.Basedir)
-    
+
                 // console.log(colorInfo)
                 if (!colorInfo) {
                     let palette = await _getVibrantColors(coverArtUrl)
@@ -177,24 +176,24 @@ const bindIPC = (win) => {
                     // console.log(palette.LightMuted)     //-->     General
                     // console.log(palette.LightVibrant)   //-->     Contrast
                     // console.log(palette)
-        
+
                     colorInfo = new ColorPalette(
                         palette.Vibrant.hex, // Highlight
                         palette.LightVibrant.hex, // Darken
                         palette.DarkVibrant.hex, // General
                         palette.LightMuted.hex // Contrast
                     )
-    
+
                     // console.log('Bug debugger:')
                     // console.log(player)
-                    
+
                     nconf.stores.colors.set(player.Playing.Basedir, colorInfo)
                     saveConfig()
                 }
                 // Send new color info to front-end
                 win.webContents.send('color-palette', colorInfo)
             }
-        }        
+        }
     })
 
     ipcMain.handle('handle:playlistFinished', () => {
@@ -222,7 +221,7 @@ const bindIPC = (win) => {
 
     // The ONLY way to add songs to playlists. Works for both context menu and drag and drop actions.
     // Takes both a path to a file or a path to a folder. Needs a playlistID.
-    ipcMain.handle('handle:addPathToPlaylist', async (e, playlistID, url) => { 
+    ipcMain.handle('handle:addPathToPlaylist', async (e, playlistID, url) => {
         // Add path to playlist
         let allPlaylists = nconf.get('app:playlists')
         let playlist = allPlaylists.find(e => e.id == playlistID)
@@ -243,17 +242,17 @@ const bindIPC = (win) => {
             for (const url of filteredFiles) {
                 let rawMetadata = await mm.parseFile(url)
                 let metadata = metadataTransformer.transformMetadata(rawMetadata)
-                fileArray.push({url, metadata, id: nextSongID})
+                fileArray.push({ url, metadata, id: nextSongID })
                 nextSongID++
             }
-            
+
             playlist.content.push(...fileArray)
         }
         else {
             // If its a file we can just add it to the playlist
             let rawMetadata = await mm.parseFile(url)
             let metadata = metadataTransformer.transformMetadata(rawMetadata)
-            playlist.content.push({url, metadata, id: nextSongID})
+            playlist.content.push({ url, metadata, id: nextSongID })
         }
 
         // Manage song IDs
@@ -280,7 +279,7 @@ const generateFileListFromFileNodes = (node, allFiles) => {
 
 const directoryCrawl = async (dir) => {
     base = []
-    baseNode = new BrowserNode(dir , dir, true)
+    baseNode = new BrowserNode(dir, dir, true)
 
     await traverseNode(baseNode)
     base.push(baseNode)
@@ -290,20 +289,20 @@ const directoryCrawl = async (dir) => {
 
 const traverseNode = async (currentNode) => {
     // Read directory
-    const content = await fs.promises.readdir(currentNode.path, {withFileTypes: true})
+    const content = await fs.promises.readdir(currentNode.path, { withFileTypes: true })
     const baseDir = currentNode.path + '\\'
 
     const folders = content
         .filter(item => !item.isFile())
         .map(item => new BrowserNode(item.name, baseDir + item.name, true))
-    
+
     currentNode.content = currentNode.content.concat(folders)
 
     // Grab files from content and into current base
     const files = content
         .filter(item => item.isFile())
         .map(item => new BrowserNode(item.name, baseDir + item.name, false))
-    
+
     // Add to base folder
     currentNode.content = currentNode.content.concat(files)
 
@@ -348,7 +347,7 @@ const createEmptyPlaylist = (name) => {
         nconf.stores.app.set('app:lastPlaylistID', lastID + 1)
         newID = lastID + 1
     }
-    
+
     let fullID = 'pl-' + newID
     // Create playlist
     let newPlaylist = new PlaylistComponent.Playlist(fullID, name)
@@ -367,8 +366,8 @@ const createEmptyPlaylist = (name) => {
     }
 
     saveConfig()
-    
-    return newPlaylist 
+
+    return newPlaylist
 }
 
 const _findAlbumArt = async (path) => {
@@ -380,7 +379,7 @@ const _findAlbumArt = async (path) => {
 
     // Get file ending in .jpg or .png
     let coverFile = content.find((x) => x.endsWith('.png') || x.endsWith('.jpg'))
-    
+
     // If no cover file found, return null
     if (!coverFile) {
         return null
@@ -406,12 +405,12 @@ const _getVibrantColors = async (url) => {
 
 const _lfmUpdateNowPlaying = (artist, track, album) => {
     sig = _buildLastFmSignature([
-        {key: 'api_key', value: lastfmApikey},
-        {key: 'artist', value: artist},
-        {key: 'track', value: track},
-        {key: 'album', value: album},
-        {key: 'method', value: 'track.updateNowPlaying'},
-        {key: 'sk', value: lastfmSessionkey}
+        { key: 'api_key', value: lastfmApikey },
+        { key: 'artist', value: artist },
+        { key: 'track', value: track },
+        { key: 'album', value: album },
+        { key: 'method', value: 'track.updateNowPlaying' },
+        { key: 'sk', value: lastfmSessionkey }
     ])
 
     const scrobbleEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.updateNowPlaying&artist=${artist}&track=${track}&album=${album}&api_key=${lastfmApikey}&api_sig=${sig}&sk=${lastfmSessionkey}&api_sig=${sig}&format=json`
@@ -423,7 +422,7 @@ const _lfmUpdateNowPlaying = (artist, track, album) => {
                 console.error(error.response.headers);
             }
         }
-    );
+        );
 }
 
 const _getCurrentTimestampUnix = () => {
@@ -436,13 +435,13 @@ const _lfmScrobbleSong = (artist, track, album, timestamp) => {
     console.log("Scrobbling song")
 
     sig = _buildLastFmSignature([
-        {key: 'api_key', value: lastfmApikey},
-        {key: 'artist', value: artist},
-        {key: 'track', value: track},
-        {key: 'timestamp', value: timestamp},
-        {key: 'album', value: album},
-        {key: 'method', value: 'track.scrobble'},
-        {key: 'sk', value: lastfmSessionkey}
+        { key: 'api_key', value: lastfmApikey },
+        { key: 'artist', value: artist },
+        { key: 'track', value: track },
+        { key: 'timestamp', value: timestamp },
+        { key: 'album', value: album },
+        { key: 'method', value: 'track.scrobble' },
+        { key: 'sk', value: lastfmSessionkey }
     ])
 
     const scrobbleEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.scrobble&artist=${artist}&track=${track}&timestamp=${timestamp}&album=${album}&api_key=${lastfmApikey}&api_sig=${sig}&sk=${lastfmSessionkey}&api_sig=${sig}&format=json`
@@ -454,7 +453,7 @@ const _lfmScrobbleSong = (artist, track, album, timestamp) => {
                 console.error(error.response.headers);
             }
         }
-    );
+        );
 }
 
 const _buildLastFmSignature = (params) => {
@@ -463,7 +462,7 @@ const _buildLastFmSignature = (params) => {
     // Append secret
     try {
         const data = fs.readFileSync(lfmSharedSecretLocation, 'utf8');
-        
+
         // Handle the data here
         if (data) {
             sharedSecret = data;
@@ -492,9 +491,9 @@ const _getLastFmSession = async (lastfmToken) => {
     // The lastfmToken is now authorized, we can request a session key
     // Build signature
     const params = [
-        {key: 'api_key', value: lastfmApikey},
-        {key: 'method', value: 'auth.getSession'},
-        {key: 'token', value: lastfmToken}
+        { key: 'api_key', value: lastfmApikey },
+        { key: 'method', value: 'auth.getSession' },
+        { key: 'token', value: lastfmToken }
     ]
     const signature = _buildLastFmSignature(params)
     console.log(signature)
@@ -521,6 +520,7 @@ const _getLastFmSession = async (lastfmToken) => {
             }
         });
 }
+
 
 const _requestLastFmSession = async () => {
     // http://ws.audioscrobbler.com/2.0/?method=auth.gettoken&api_key=&format=json
@@ -553,13 +553,13 @@ const _setupLastFm = async () => {
             fs.open(lfmSessionkeyLocation, 'w', (err, fd) => {
                 if (err) {
                     throw err;
-                } 
+                }
             });
         }
     } catch (err) {
         console.error(err)
     }
-    
+
     // Read contens of lastfm_session.txt
     sesToken = null
     fs.readFile(lfmSessionkeyLocation, 'utf8', async (err, data) => {
