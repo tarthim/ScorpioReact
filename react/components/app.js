@@ -115,6 +115,16 @@ class Scorpio extends React.Component {
         playlists: playlistUpdate
       });
     });
+    _defineProperty(this, "_deleteSongFromPlaylist", async (playlistId, songId) => {
+      // Extract the actual song ID from the combined key (format: playlistId-songId)
+      // Use lastIndexOf to handle playlist IDs that contain dashes
+      let lastDashIndex = songId.lastIndexOf('-');
+      let actualSongId = songId.substring(lastDashIndex + 1);
+      // Call the API to delete the song
+      let updatedPlaylists = await window.electronAPI.handleDeleteSongFromPlaylist(playlistId, actualSongId);
+      // Update playlists and maintain active playlist
+      this._setPlaylists(updatedPlaylists, playlistId);
+    });
     _defineProperty(this, "_togglePlaying", () => {
       // Handler for toggling playing
       this.state.audio.paused ? this.state.audio.play() : this.state.audio.pause();
@@ -250,7 +260,8 @@ class Scorpio extends React.Component {
       removePlaylist: this._removePlaylist,
       renderSettings: this.state.contextMenuState,
       addSongToPlaylist: this._addSongToPlaylist,
-      setEditPlaylist: this._setEditPlaylist
+      setEditPlaylist: this._setEditPlaylist,
+      deleteSongFromPlaylist: this._deleteSongFromPlaylist
     }) : "", /*#__PURE__*/React.createElement("div", {
       className: "content-boxes"
     }, /*#__PURE__*/React.createElement("div", {
@@ -282,7 +293,8 @@ class Scorpio extends React.Component {
       activePlaylist: this.state.activePlaylist,
       activePlaylistSong: this.state.activePlaylistSong,
       setActivePlaylistContent: this._setActivePlaylistContent,
-      setActivePlaylistSong: this._setActivePlaylistSong
+      setActivePlaylistSong: this._setActivePlaylistSong,
+      showContext: this._activateContextMenu
     })), /*#__PURE__*/React.createElement("div", {
       className: "right-pane"
     }, /*#__PURE__*/React.createElement("div", {

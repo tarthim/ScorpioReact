@@ -7,6 +7,12 @@ class PlaylistItem extends React.PureComponent {
       this.props.onDoubleClick(this.props.content.url, this.props.id);
       this.props.setAsActive(this.props.id);
     });
+    _defineProperty(this, "_onContextMenu", e => {
+      this.props.showContext(e, 'PLAYLIST_SONG', {
+        songId: this.props.id,
+        playlistId: this.props.playlistId
+      });
+    });
   }
   render() {
     let currentClass = "playlist-item";
@@ -17,6 +23,7 @@ class PlaylistItem extends React.PureComponent {
       onDoubleClickCapture: () => {
         this._onDoubleClick();
       },
+      onContextMenuCapture: this._onContextMenu,
       className: currentClass
     }, /*#__PURE__*/React.createElement("div", {
       className: "play-indicator"

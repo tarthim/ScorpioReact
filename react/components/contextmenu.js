@@ -26,6 +26,12 @@ class ContextMenu extends React.Component {
         onClickCapture: () => this.props.removePlaylist(this.props.renderSettings.Content)
       }, "Remove playlist"));
     });
+    _defineProperty(this, "_renderPlaylistSongContext", () => {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+        className: "context-item",
+        onClickCapture: () => this.props.deleteSongFromPlaylist(this.props.renderSettings.Content.playlistId, this.props.renderSettings.Content.songId)
+      }, "Delete"));
+    });
   }
 
   // Shows when right clicking a song
@@ -33,6 +39,8 @@ class ContextMenu extends React.Component {
   // Shows when right clicking on the playlist pane
 
   // Shows when right clicking on a playlist item
+
+  // Shows when right clicking on a song in the playlist
 
   render() {
     let style = {
@@ -42,7 +50,7 @@ class ContextMenu extends React.Component {
     return /*#__PURE__*/React.createElement("div", {
       className: "context-menu",
       style: style
-    }, this.props.renderSettings.Type === 'SONG' && this._renderSongContext() || this.props.renderSettings.Type === 'PLAYLIST_MANAGER' && this._renderPlaylistPaneContext() || this.props.renderSettings.Type === 'PLAYLIST_ITEM' && this._renderPlaylistItemContext());
+    }, this.props.renderSettings.Type === 'SONG' && this._renderSongContext() || this.props.renderSettings.Type === 'PLAYLIST_MANAGER' && this._renderPlaylistPaneContext() || this.props.renderSettings.Type === 'PLAYLIST_ITEM' && this._renderPlaylistItemContext() || this.props.renderSettings.Type === 'PLAYLIST_SONG' && this._renderPlaylistSongContext());
   }
 }
 export default ContextMenu;

@@ -5,6 +5,10 @@ class PlaylistItem extends React.PureComponent {
         this.props.setAsActive(this.props.id)
     }
 
+    _onContextMenu = (e) => {
+        this.props.showContext(e, 'PLAYLIST_SONG', { songId: this.props.id, playlistId: this.props.playlistId })
+    }
+
     render() {
         let currentClass = "playlist-item"
         if (this.props.active == this.props.id) {
@@ -12,7 +16,7 @@ class PlaylistItem extends React.PureComponent {
         }
 
         return (
-            <div onDoubleClickCapture={() => {this._onDoubleClick()}} className={currentClass}>
+            <div onDoubleClickCapture={() => { this._onDoubleClick() }} onContextMenuCapture={this._onContextMenu} className={currentClass}>
                 <div className="play-indicator">
                     {this.props.active == this.props.id && <div className="play-icon"></div>}
                 </div>

@@ -219,6 +219,20 @@ const bindIPC = (win) => {
         return allPlaylists
     })
 
+    ipcMain.handle('handle:deleteSongFromPlaylist', (e, playlistID, songID) => {
+        let allPlaylists = nconf.get('app:playlists')
+        let playlist = allPlaylists.find(e => e.id == playlistID)
+        let numericSongID = parseInt(songID)
+        let songIndex = playlist.content.findIndex(e => e.id === numericSongID)
+        if (songIndex !== -1) {
+            console.log(`Deleted song ${numericSongID} from playlist "${playlist.name}" (${playlistID})`)
+            playlist.content.splice(songIndex, 1)
+            nconf.stores.app.set('app:playlists', allPlaylists)
+            saveConfig()
+        }
+        return allPlaylists
+    })
+
     // The ONLY way to add songs to playlists. Works for both context menu and drag and drop actions.
     // Takes both a path to a file or a path to a folder. Needs a playlistID.
     ipcMain.handle('handle:addPathToPlaylist', async (e, playlistID, url) => {

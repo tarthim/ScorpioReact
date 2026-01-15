@@ -135,7 +135,7 @@ class Scorpio extends React.Component {
     _setPlaylists = (allPlaylists, activePlaylistID) => {
         // Get new active playlist
         let activePlaylist = allPlaylists.find(x => x.id === activePlaylistID)
-        
+
         this.setState({
             playlists: allPlaylists,
             activePlaylist: activePlaylist
@@ -189,7 +189,7 @@ class Scorpio extends React.Component {
         })
         this._playSong(url)
     }
-    
+
     _playSongFromPlaylist = (url, songID) => {
         // console.log(songID)
         // First: play song
@@ -227,6 +227,16 @@ class Scorpio extends React.Component {
         })
     }
 
+    _deleteSongFromPlaylist = async (playlistId, songId) => {
+        // Extract the actual song ID from the combined key (format: playlistId-songId)
+        // Use lastIndexOf to handle playlist IDs that contain dashes
+        let lastDashIndex = songId.lastIndexOf('-')
+        let actualSongId = songId.substring(lastDashIndex + 1)
+        // Call the API to delete the song
+        let updatedPlaylists = await window.electronAPI.handleDeleteSongFromPlaylist(playlistId, actualSongId)
+        // Update playlists and maintain active playlist
+        this._setPlaylists(updatedPlaylists, playlistId)
+    }
 
     _togglePlaying = () => {
         // Handler for toggling playing
@@ -256,7 +266,7 @@ class Scorpio extends React.Component {
         lastState.Y = e.clientY
         lastState.Type = type
         lastState.Content = content
-        
+
         this.setState({
             showContextMenu: true,
             contextMenuState: lastState
@@ -276,37 +286,38 @@ class Scorpio extends React.Component {
     render() {
         return (
             <div onClickCapture={(e) => this._handleLeftClickGlobal(e)} id="scorpio">
-                {this.state.showContextMenu ? 
-                <ContextMenu 
-                playSong={this._playSongFromFileTree}
-                addNewPlaylist={this._addNewPlaylist}
-                removePlaylist={this._removePlaylist}
-                renderSettings={this.state.contextMenuState}
-                addSongToPlaylist={this._addSongToPlaylist}
-                setEditPlaylist={this._setEditPlaylist}
-                /> : ""}
-                
+                {this.state.showContextMenu ?
+                    <ContextMenu
+                        playSong={this._playSongFromFileTree}
+                        addNewPlaylist={this._addNewPlaylist}
+                        removePlaylist={this._removePlaylist}
+                        renderSettings={this.state.contextMenuState}
+                        addSongToPlaylist={this._addSongToPlaylist}
+                        setEditPlaylist={this._setEditPlaylist}
+                        deleteSongFromPlaylist={this._deleteSongFromPlaylist}
+                    /> : ""}
+
                 <div className="content-boxes">
                     <div className="top-pane">
-                        <TitleBar nowPlaying={this.state.nowPlayingInfo} albumArt={this.state.albumArt}/>
-                        <TopBar audio={this.state.audio} togglePlaying={this.state.togglePlaying} seekCurrentPlaying={this._setCurrentPlayingToTime} activePlaylist={this.state.activePlaylist}/>
+                        <TitleBar nowPlaying={this.state.nowPlayingInfo} albumArt={this.state.albumArt} />
+                        <TopBar audio={this.state.audio} togglePlaying={this.state.togglePlaying} seekCurrentPlaying={this._setCurrentPlayingToTime} activePlaylist={this.state.activePlaylist} />
                         {this.state.albumArt && <img id="titlebar-style" src={this.state.albumArt}></img>}
                     </div>
 
                     <div className="main-pane">
                         <div className="left-pane">
-                            <FileBrowser songTree={this.state.songTree} playSong={this._playSongFromFileTree} showContext={this._activateContextMenu}/>
+                            <FileBrowser songTree={this.state.songTree} playSong={this._playSongFromFileTree} showContext={this._activateContextMenu} />
                         </div>
 
                         <div className="center-pane">
-                            <PlayerManager setPlaylists={this._setPlaylists} onDoubleClick={this._playSongFromPlaylist} activePlaylist={this.state.activePlaylist} activePlaylistSong={this.state.activePlaylistSong} setActivePlaylistContent={this._setActivePlaylistContent} setActivePlaylistSong={this._setActivePlaylistSong}/>
+                            <PlayerManager setPlaylists={this._setPlaylists} onDoubleClick={this._playSongFromPlaylist} activePlaylist={this.state.activePlaylist} activePlaylistSong={this.state.activePlaylistSong} setActivePlaylistContent={this._setActivePlaylistContent} setActivePlaylistSong={this._setActivePlaylistSong} showContext={this._activateContextMenu} />
                         </div>
 
                         <div className="right-pane">
                             <div className="album-viewer">
                                 {this.state.albumArt != null && <img src={this.state.albumArt}></img>}
                             </div>
-                            <PlaylistManagerVertical activePlaylist={this.state.activePlaylist} playlistEdit={this.state.playlistInEdit} clearEditPlaylist={this._clearEditPlaylist} showContext={this._activateContextMenu} playlists={this.state.playlists} setActivePlaylist={this._setActivePlaylist}/>
+                            <PlaylistManagerVertical activePlaylist={this.state.activePlaylist} playlistEdit={this.state.playlistInEdit} clearEditPlaylist={this._clearEditPlaylist} showContext={this._activateContextMenu} playlists={this.state.playlists} setActivePlaylist={this._setActivePlaylist} />
                         </div>
 
                     </div>

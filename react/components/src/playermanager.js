@@ -4,7 +4,7 @@ class PlayerManager extends React.Component {
     constructor(props) {
         super(props)
     }
-    
+
     _renderContent = () => {
         let content = []
         let playlistContent = []
@@ -14,12 +14,12 @@ class PlayerManager extends React.Component {
                 let uniqueKey = this.props.activePlaylist.id + '-' + songContent.id
 
                 // console.log(songContent)
-                playlistContent.push({uniqueKey, songContent})
+                playlistContent.push({ uniqueKey, songContent })
                 content.push(
-                        (
-                            <PlaylistItem onDoubleClick={this.props.onDoubleClick} setAsActive={this.props.setActivePlaylistSong} key={uniqueKey} id={uniqueKey} active={this.props.activePlaylistSong} content={songContent}/>
-                        )
+                    (
+                        <PlaylistItem onDoubleClick={this.props.onDoubleClick} setAsActive={this.props.setActivePlaylistSong} key={uniqueKey} id={uniqueKey} active={this.props.activePlaylistSong} content={songContent} showContext={this.props.showContext} playlistId={this.props.activePlaylist.id} />
                     )
+                )
             }
         }
         this.props.setActivePlaylistContent(playlistContent)
@@ -46,9 +46,9 @@ class PlayerManager extends React.Component {
         return (
             <div className="main-playlist" onDragOver={this._onDragOver} onDrop={this._onDrop}>
                 <div className="main-playlist-overlay">
-                   <div className="main-playlist-banner">{this.props.activePlaylist.name}</div>
+                    <div className="main-playlist-banner">{this.props.activePlaylist.name}</div>
                 </div>
-                
+
                 <div className="song-content">
                     <div className="column-titles">
                         <div className="play-indicator"></div>
@@ -57,9 +57,9 @@ class PlayerManager extends React.Component {
                         <div className="column">Album</div>
                         <div className="column">Encoding</div>
                     </div>
-                    {content} 
+                    {content}
                 </div>
-                
+
             </div>
         )
     }

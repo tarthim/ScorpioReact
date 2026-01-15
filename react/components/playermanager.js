@@ -22,7 +22,9 @@ class PlayerManager extends React.Component {
             key: uniqueKey,
             id: uniqueKey,
             active: this.props.activePlaylistSong,
-            content: songContent
+            content: songContent,
+            showContext: this.props.showContext,
+            playlistId: this.props.activePlaylist.id
           }));
         }
       }

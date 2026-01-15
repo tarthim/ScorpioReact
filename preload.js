@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     handlePlaySong: (url) => ipcRenderer.invoke('handle:playSong', url),
     handleNewPlaylist: () => ipcRenderer.invoke('handle:addPlaylist'),
     handleDeletePlaylist: (pl) => ipcRenderer.invoke('handle:deletePlaylist', pl),
+    handleDeleteSongFromPlaylist: (playlistId, songId) => ipcRenderer.invoke('handle:deleteSongFromPlaylist', playlistId, songId),
     handleRetrievePlaylists: () => ipcRenderer.invoke('handle:getPlaylists'),
     handleAddPathToPlaylist: (pl, path) => ipcRenderer.invoke('handle:addPathToPlaylist', pl, path),
     handlePlaylistUpdate: (playlist) => ipcRenderer.invoke('handle:playlistUpdate', playlist),

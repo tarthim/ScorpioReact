@@ -32,6 +32,15 @@ class ContextMenu extends React.Component {
         )
     }
 
+    // Shows when right clicking on a song in the playlist
+    _renderPlaylistSongContext = () => {
+        return (
+            <>
+                <div className="context-item" onClickCapture={() => this.props.deleteSongFromPlaylist(this.props.renderSettings.Content.playlistId, this.props.renderSettings.Content.songId)}>Delete</div>
+            </>
+        )
+    }
+
     render() {
         let style = {
             left: this.props.renderSettings.X,
@@ -41,8 +50,9 @@ class ContextMenu extends React.Component {
         return (
             <div className="context-menu" style={style}>
                 {this.props.renderSettings.Type === 'SONG' && this._renderSongContext() ||
-                this.props.renderSettings.Type === 'PLAYLIST_MANAGER' && this._renderPlaylistPaneContext() ||
-                this.props.renderSettings.Type === 'PLAYLIST_ITEM' && this._renderPlaylistItemContext()}
+                    this.props.renderSettings.Type === 'PLAYLIST_MANAGER' && this._renderPlaylistPaneContext() ||
+                    this.props.renderSettings.Type === 'PLAYLIST_ITEM' && this._renderPlaylistItemContext() ||
+                    this.props.renderSettings.Type === 'PLAYLIST_SONG' && this._renderPlaylistSongContext()}
             </div>
         )
     }
